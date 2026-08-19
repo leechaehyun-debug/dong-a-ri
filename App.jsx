@@ -71,6 +71,7 @@ export default function DonariJangsoApp() {
   const [draft, setDraft] = useState(null);
   const [toast, setToast] = useState("");
   const [saving, setSaving] = useState(false);
+  const [view, setView] = useState("table"); // 'table' | 'list'
 
   const mKey = monthKey(cursor);
 
@@ -350,7 +351,7 @@ export default function DonariJangsoApp() {
             </span>
           </div>
 
-          {role === "select" && (
+          {view === "list" && role === "select" && (
             <div style={styles.hintStrong}>
               <span style={styles.hintIcon}>👆</span>
               <span>
@@ -369,8 +370,25 @@ export default function DonariJangsoApp() {
           )}
         </div>
 
+        <div style={styles.viewTabs}>
+          <button
+            style={view === "table" ? styles.viewTabActive : styles.viewTab}
+            onClick={() => setView("table")}
+          >
+            📋 전체 한눈에 보기
+          </button>
+          <button
+            style={view === "list" ? styles.viewTabActive : styles.viewTab}
+            onClick={() => setView("list")}
+          >
+            ✏️ 내 동아리 입력하기
+          </button>
+        </div>
+
         {loading || !roster ? (
           <div style={styles.loadingBox}>불러오는 중…</div>
+        ) : view === "table" ? (
+          <OverviewTable roster={roster} />
         ) : (
           <ul style={styles.list}>
             {CLUBS.map((club) => {
@@ -428,6 +446,55 @@ export default function DonariJangsoApp() {
       )}
 
       {toast && <div style={styles.toast}>{toast}</div>}
+    </div>
+  );
+}
+
+function OverviewTable({ roster }) {
+  return (
+    <div style={styles.tableCard}>
+      <div style={styles.tableScroll}>
+        <table style={styles.table}>
+          <thead>
+            <tr>
+              <th style={styles.th}>#</th>
+              <th style={styles.th}>동아리</th>
+              <th style={styles.th}>담당</th>
+              <th style={styles.th}>학년</th>
+              <th style={styles.th}>집합장소</th>
+              <th style={styles.th}>활동장소</th>
+              <th style={styles.th}>준비물</th>
+              <th style={styles.th}>시간</th>
+              <th style={styles.th}>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {CLUBS.map((club) => {
+              const e = roster[club.no] || blankEntry();
+              return (
+                <tr key={club.no} style={styles.tr}>
+                  <td style={styles.tdNo}>{club.no}</td>
+                  <td style={styles.tdDept}>{club.dept}</td>
+                  <td style={styles.td}>{club.teacher}</td>
+                  <td style={styles.td}>{club.grade}</td>
+                  <td style={e.meetPlace ? styles.td : styles.tdEmpty}>{e.meetPlace || "—"}</td>
+                  <td style={e.actPlace ? styles.tdStrong : styles.tdEmpty}>{e.actPlace || "—"}</td>
+                  <td style={e.supplies ? styles.td : styles.tdEmpty}>{e.supplies || "—"}</td>
+                  <td style={styles.td}>{e.meetTime}</td>
+                  <td style={styles.td}>
+                    {e.submitted ? (
+                      <span style={styles.tagDone}>완료</span>
+                    ) : (
+                      <span style={styles.tagPending}>미제출</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p style={styles.tableFootnote}>가로로 스크롤하면 전체 항목을 볼 수 있어요.</p>
     </div>
   );
 }
@@ -885,6 +952,120 @@ const styles = {
     padding: "10px 14px",
     cursor: "pointer",
     marginTop: 4,
+  },
+  viewTabs: {
+    display: "flex",
+    gap: 8,
+    marginBottom: 12,
+  },
+  viewTab: {
+    flex: 1,
+    border: "1px solid rgba(255,255,255,0.6)",
+    background: "rgba(255,255,255,0.18)",
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: 600,
+    borderRadius: 999,
+    padding: "9px 10px",
+    cursor: "pointer",
+  },
+  viewTabActive: {
+    flex: 1,
+    border: "1px solid #fff",
+    background: "#fff",
+    color: "var(--primary)",
+    fontSize: 13,
+    fontWeight: 800,
+    borderRadius: 999,
+    padding: "9px 10px",
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(11,54,84,0.2)",
+  },
+  tableCard: {
+    background: "var(--surface)",
+    borderRadius: 16,
+    padding: 12,
+    boxShadow: "0 8px 22px rgba(11,54,84,0.15)",
+  },
+  tableScroll: {
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+  },
+  table: {
+    borderCollapse: "collapse",
+    width: "100%",
+    minWidth: 620,
+  },
+  th: {
+    textAlign: "left",
+    fontSize: 11.5,
+    fontWeight: 700,
+    color: "var(--ink-soft)",
+    textTransform: "uppercase",
+    letterSpacing: "0.03em",
+    padding: "6px 8px",
+    borderBottom: "2px solid var(--line)",
+    position: "sticky",
+    top: 0,
+    background: "var(--surface)",
+    whiteSpace: "nowrap",
+  },
+  tr: {
+    borderBottom: "1px solid var(--line)",
+  },
+  td: {
+    fontSize: 13,
+    color: "var(--ink)",
+    padding: "8px",
+    whiteSpace: "nowrap",
+  },
+  tdNo: {
+    fontSize: 12,
+    color: "var(--ink-faint)",
+    padding: "8px",
+    fontVariantNumeric: "tabular-nums",
+  },
+  tdDept: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: "var(--ink)",
+    padding: "8px",
+    whiteSpace: "nowrap",
+  },
+  tdStrong: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: "var(--primary)",
+    padding: "8px",
+    whiteSpace: "nowrap",
+  },
+  tdEmpty: {
+    fontSize: 13,
+    color: "var(--ink-faint)",
+    padding: "8px",
+    whiteSpace: "nowrap",
+  },
+  tagDone: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#fff",
+    background: "var(--stamp)",
+    borderRadius: 999,
+    padding: "3px 9px",
+  },
+  tagPending: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: "var(--ink-soft)",
+    background: "var(--surface-alt)",
+    border: "1px solid var(--line)",
+    borderRadius: 999,
+    padding: "3px 9px",
+  },
+  tableFootnote: {
+    fontSize: 11,
+    color: "var(--ink-faint)",
+    margin: "8px 2px 0",
   },
   loadingBox: {
     padding: "40px 0",
