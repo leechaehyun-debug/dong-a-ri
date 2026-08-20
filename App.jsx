@@ -27,7 +27,7 @@ const CLUBS = [
   { no: 22, dept: "치어리딩반", teacher: "도영채", grade: "전학년" },
   { no: 23, dept: "뉴스포츠반", teacher: "박건문", grade: "전학년" },
   { no: 24, dept: "스파이크반", teacher: "이석훈", grade: "전학년" },
-  { no: 25, dept: "밴드반", teacher: "박정미", grade: "전학년" },
+  { no: 25, dept: "밴드반", teacher: "정숙래", grade: "전학년" },
   { no: 26, dept: "보드게임반", teacher: "이선자", grade: "전학년" },
   { no: 27, dept: "AI코딩반", teacher: "정이영", grade: "전학년" },
 ];
